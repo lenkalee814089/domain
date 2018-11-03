@@ -80,7 +80,7 @@ public class GroupTwoModelHandler implements Operator {
         return ynfkGroupTwoModel.flightTravelNeighbourModel(dataset,filterNum,ZJHM,HBH,LG_RQ,LKZW,flightCols);
     }
 
-    @InsightComponent( name = "铁路同行", description = "同行规则：同铁路班次（车次，出发时间,出发地,目的地相同），同铁路次数大于4的为同行人")
+    @InsightComponent( name = "铁路同行", description = "同行规则：同铁路班次（车次、出发时间、出发地、目的地相同），同铁路次数大于等于4的为铁路同行")
     public static Dataset<Row>  railwayTravelTwoModel(
             @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "dataset", description = "数据集",request = true) Dataset<Row> dataset,
             @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "sameRailTimesThreshold", description = "同铁路次数阀值 >=",request = true) int sameRailTimesThreshold,
@@ -91,12 +91,12 @@ public class GroupTwoModelHandler implements Operator {
             @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "CXH", description = "车厢号",request = true) String CXH,
             @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "ZWH", description = "座位号",request = true) String ZWH,
             @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "FCSJ", description = "发车时间",request = true) String FCSJ,
-            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "railColums", description = "铁路同行人员内容相异的信息列,如座位号/车厢号.. 以分号分隔",request = true) String railColums,
-            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "commonColums", description = "铁路同行人员内容相同的信息列,如车次/始发地/目的地.. 以分号分隔",request = true) String commonColums) {
+            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "railColums", description = "铁路同行人员内容相异的信息列,如座位号、车厢号.. 以分号分隔",request = true) String railColums,
+            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "commonColums", description = "铁路同行人员内容相同的信息列,如车次、始发地、目的地.. 以分号分隔",request = true) String commonColums) {
 
         return ynfkGroupTwoModelJava.railWayTravelTwoModel (dataset,sameRailTimesThreshold,GMSFHM,SFD,MDD,CC,CXH,ZWH,FCSJ,railColums,commonColums);
     }
-    @InsightComponent( name = "铁路邻座", description = "同行规则：同铁路班次（车次，出发时间,出发地,目的地相同），邻座次数大于2的为同行人")
+    @InsightComponent( name = "铁路邻座", description = "同行规则：铁路邻座位（车次、出发时间、出发地、目的地相、车厢号等相同.且座位相邻），同铁路邻座大于等于2次的为铁路邻座")
     public static Dataset<Row>  railwayTravelNeighbourModel(
             @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "dataset", description = "数据集",request = true) Dataset<Row> dataset,
             @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "adjacentTimesThreshold", description = "邻座次数阀值 >=",request = true) int adjacentTimesThreshold,
@@ -108,36 +108,36 @@ public class GroupTwoModelHandler implements Operator {
             @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "ZWH", description = "座位号",request = true) String ZWH,
             @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "FCSJ", description = "发车时间",request = true) String FCSJ,
             @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "railColums", description = "铁路邻座人员内容相异的信息列,如座位号.. 以分号分隔",request = true)String railColums,
-            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "commonColums", description = "铁路同行人员内容相同的信息列,如车次/始发地/目的地.. 以分号分隔",request = true) String commonColums) {
+            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "commonColums", description = "铁路同行人员内容相同的信息列,如车次、始发地、目的地.. 以分号分隔",request = true) String commonColums) {
         return ynfkGroupTwoModelJava.railWayTravelNeighbourModel(dataset,adjacentTimesThreshold,GMSFHM,SFD,MDD,CC,CXH,ZWH,FCSJ,railColums,commonColums);
     }
 
-    @InsightComponent( name = "旅馆同行", description = "同行规则：同旅馆（入住退房时间重合度超过80%），同旅馆次数大于5的为同行人")
+    @InsightComponent( name = "旅馆同住宿", description = "同行规则：同旅馆（在同一旅馆入住时间重合度超过80%），同旅馆次数大于等于5的为旅馆同住宿")
     public static Dataset<Row>  hotelTravelTwoModel(
             @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "dataset", description = "数据集",request = true) Dataset<Row> dataset,
             @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "sameHotelTimesThreshold", description = "同旅馆次数阈值 >=",request = true) int sameHotelTimesThreshold,
-            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "zjhm", description = "证件号码",request = true) String zjhm,
-            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "tfsj", description = "退房时间",request = true) String tfsj,
-            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "rzsj", description = "入住时间",request = true) String rzsj,
-            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "lgbm", description = "旅馆编码",request = true) String lgbm,
-            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "lgbm", description = "入住房号",request = true) String rzfh,
+            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "ZJHM", description = "证件号码",request = true) String ZJHM,
+            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "TFSJ", description = "退房时间",request = true) String TFSJ,
+            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "RZSJ", description = "入住时间",request = true) String RZSJ,
+            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "LGBM", description = "旅馆编码",request = true) String LGBM,
+            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "RZFH", description = "入住房号",request = true) String RZFH,
             @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "hotelColums", description = "旅馆同行人员内容相异的信息列,如旅馆编码.. 以分号分隔",request = true) String hotelColums,
-            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "commonColums", description = "旅馆同行人员内容相同的信息列,如旅馆编码/旅馆经纬度. 以分号分隔",request = true) String commonColums) {
-        return ynfkGroupTwoModelJava.hotelTravelTwoModel(dataset,sameHotelTimesThreshold,zjhm,rzsj,lgbm,tfsj,rzfh,hotelColums,commonColums);
+            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "commonColums", description = "旅馆同行人员内容相同的信息列,如旅馆编码、旅馆经纬度. 以分号分隔",request = true) String commonColums) {
+        return ynfkGroupTwoModelJava.hotelTravelTwoModel(dataset,sameHotelTimesThreshold,ZJHM,RZSJ,LGBM,TFSJ,RZFH,hotelColums,commonColums);
 
     }
-    @InsightComponent( name = "旅馆同宿", description = "同行规则：同旅馆（在两人同旅馆时间交际内入住同一房间），同房间次数大于1的为同宿人")
+    @InsightComponent( name = "旅馆同房间", description = "同行规则：同房间（在两人同旅馆时间交际内入住同一房间），同房间次数大于等于2次的为旅馆同房间")
     public static Dataset<Row>  hotelTravelSameRoomModel(
             @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "dataset", description = "数据集",request = true) Dataset<Row> dataset,
-            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "sameHotelTimesThreshold", description = "同旅馆次数阈值 >=",request = true) int sameHotelTimesThreshold,
-            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "zjhm", description = "证件号码",request = true) String zjhm,
-            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "tfsj", description = "退房时间",request = true) String tfsj,
-            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "rzsj", description = "入住时间",request = true) String rzsj,
-            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "lgbm", description = "旅馆编码",request = true) String lgbm,
-            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "lgbm", description = "入住房号",request = true) String rzfh,
+            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "sameRoomTimesThreshold", description = "同房间次数阈值 >=",request = true) int sameRoomTimesThreshold,
+            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "ZJHM", description = "证件号码",request = true) String ZJHM,
+            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "TFSJ", description = "退房时间",request = true) String TFSJ,
+            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "RZSJ", description = "入住时间",request = true) String RZSJ,
+            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "LGBM", description = "旅馆编码",request = true) String LGBM,
+            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "RZFH", description = "入住房号",request = true) String RZFH,
             @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "hotelColums", description = "旅馆同宿人员内容相异的信息列,如旅馆编码.. 以分号分隔",request = true) String hotelColums,
-            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "commonColums", description = "旅馆同宿人员内容相同的信息列,如入住时间/退房时间. 以分号分隔",request = true) String commonColums) {
-        return  ynfkGroupTwoModelJava.hotelTraveSameRoomModel(dataset,sameHotelTimesThreshold,zjhm,tfsj,rzsj,lgbm,rzfh,hotelColums,commonColums);
+            @com.dataexa.data.prepare.annotation.InsightComponentArg(name = "commonColums", description = "旅馆同宿人员内容相同的信息列,如入住时间、退房时间,以分号分隔",request = true) String commonColums) {
+        return  ynfkGroupTwoModelJava.hotelTraveSameRoomModel(dataset,sameRoomTimesThreshold,ZJHM,TFSJ,RZSJ,LGBM,RZFH,hotelColums,commonColums);
 
     }
 

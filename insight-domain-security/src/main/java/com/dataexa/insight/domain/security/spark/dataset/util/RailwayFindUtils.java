@@ -10,6 +10,14 @@ import java.util.*;
 public class RailwayFindUtils {
     private static final Logger LOGGER = Logger.getLogger(RailwayFindUtils.class);
 
+    public static boolean isLetter(String s){
+        char c = s.charAt(0);
+        if (c>='a'&&c<='z'){
+            return true;
+        }
+        return false;
+    }
+
     /**
      * 判断两座位号是否邻座
      * @param a
@@ -17,20 +25,43 @@ public class RailwayFindUtils {
      * @return
      */
     public static boolean isCloseSeatNUm(String a, String b){
-        a=a.toLowerCase().substring(a.length()-1, a.length());
-        b=b.toLowerCase().substring(b.length()-1, b.length());
+        int aExceptLast=Integer.parseInt(a.substring(0, a.length()-1)) ;
+        int bExceptLast=Integer.parseInt(b.substring(0, b.length()-1));
+        String aLast=a.toLowerCase().substring(a.length()-1, a.length());
+        String bLast=b.toLowerCase().substring(b.length()-1, b.length());
+        //两座位号尾数都是字母时
+        if ((aExceptLast==bExceptLast)&& isLetter(aLast)&&isLetter(bLast)){
+            switch (aLast) {
+                //动车座位没有e
+                case "a":return bLast.equals("b") ;
+                case "b":return bLast.equals("a")||bLast.equals("c");
+                case "c":return bLast.equals("b")||bLast.equals("d") ;
+                case "d":return bLast.equals("c")||bLast.equals("f") ;
+                case "f":return bLast.equals("d") ;
+                default:
+                    System.out.println("判断是否邻座时出现错误,如果尾字母为e,请修正测试数据或忽略本条信息!    "+a+"   "+b);
+            }
 
-        switch (a) {
-            case "a":return b.equals("b") ;
-            case "b":return b.equals("a")||b.equals("c");
-            case "c":return b.equals("b") ;
-            case "d":return b.equals("e") ;
-            case "e":return b.equals("d")||b.equals("f");
-            case "f":return b.equals("e") ;
+            return false;
+            //都是数字时
+        }else if ((!isLetter(aLast))&&(!isLetter(bLast))){
+            int bigSeatNum = Math.max(Integer.parseInt(a), Integer.parseInt(b)) ;
+            int miniSeatNum = Math.min(Integer.parseInt(a), Integer.parseInt(b)) ;
+            if (bigSeatNum-miniSeatNum==1){
+                if (bigSeatNum%10==0||bigSeatNum%10==5||miniSeatNum%10==4||miniSeatNum%10==9){
+                    return false;
+                }
+                return true;
+            }
         }
-        LOGGER.error("处理是否邻座时出现错误!!");
-
+        //一个是数字一个是字母,false
         return false;
+
+
+    }
+
+    public static void main(String[] args) {
+        System.out.println(isCloseSeatNUm("439", "455"));
     }
 
     /**

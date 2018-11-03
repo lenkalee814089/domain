@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.spark.sql.Row;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -240,7 +241,7 @@ public final class DateUtils {
         String hour = dateString.substring(8, 10);
         String min = dateString.substring(10, 12);
         int y = Integer.parseInt(year);
-        int m = Integer.parseInt(month);
+        int m = Integer.parseInt(month)-1;
         int d = Integer.parseInt(day);
         int h = Integer.parseInt(hour);
         int mins = Integer.parseInt(min);
@@ -248,6 +249,16 @@ public final class DateUtils {
         date.set(y, m, d, h, mins);
         return date;
     }
+
+    /**
+     *
+     * @param foreDate
+     */
+    public static  String plusOneDay (String foreDate) {
+        return getDateStringByMillisecond(DATE_PATEN_YYYYMMDDHHMMSS, addDays(parseYYYYMMDDHHMM2Date(foreDate).getTime(), 1).getTime())
+        ;//+24*60*60*1000;
+    }
+
     /**
      * 字符串按自定格式更新
      *
@@ -856,13 +867,13 @@ public final class DateUtils {
 
     public static void main(String[] args) throws Exception {
         String minute = "201601201005";
-        System.out.println(DateUtils.parseYYYYMMDDHHMM2Date("201801012210").getTimeInMillis()/1000);
+        System.out.println(DateUtils.parseYYYYMMDDHHMM2Date("201810012210").getTimeInMillis());
         System.out.println(DateUtils.getDayByMinute(minute));
         System.out.println(DateUtils.getHourByMinute(minute));
         System.out.println(DateUtils.getOnlyHourByMinute(minute));
         System.out.println(DateUtils.getOnlyMinuteByMinute(minute));
-
-        System.out.println(DateUtils.getDateStringByMillisecond(DateUtils.HOUR_FORMAT, 1488326400000L));
+        System.out.println(plusOneDay("20181211000000"));
+        System.out.println("871:    "+DateUtils.getDateStringByMillisecond(DateUtils.DATE_PATEN_YYYYMMDDHHMMSS, 1488326400000L));
         System.out.println(DateUtils.getDayByHour(DateUtils.getDateStringByMillisecond(DateUtils.HOUR_FORMAT, 1488326400000L)));
 
 //    for (int i = 0; i < 100; i++) {

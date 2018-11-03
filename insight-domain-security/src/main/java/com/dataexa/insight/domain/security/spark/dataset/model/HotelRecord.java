@@ -3,6 +3,7 @@ package com.dataexa.insight.domain.security.spark.dataset.model;
 
 import com.alibaba.fastjson.JSONObject;
 import com.dataexa.insight.domain.security.spark.dataset.util.DateUtils;
+import org.apache.log4j.Logger;
 
 import java.io.Serializable;
 
@@ -42,31 +43,17 @@ public class HotelRecord implements Serializable {
     public HotelRecord(String zjhm, String rzfh, String tfsj, String rzsj, String lgbm, JSONObject diffFieldJsonObject,JSONObject sameFieldJsonObject) {
         this.zjhm = zjhm;
         this.rzfh = rzfh;
-        this.tfsj = tfsj;
         this.rzsj = rzsj;
+        this.setTfsj(tfsj);
         this.lgbm = lgbm;
         this.diffFieldJsonObject =diffFieldJsonObject;
         this.sameFieldJsonObject=sameFieldJsonObject;
-        setLeaveTimeMillSecond(DateUtils.parseYYYYMMDDHHMM2Date(tfsj).getTimeInMillis()/1000);
-        setComeTimeMillSecond(DateUtils.parseYYYYMMDDHHMM2Date(rzsj).getTimeInMillis()/1000);
-        stayMillSecond=leaveTimeMillSecond-comeTimeMillSecond;
+        this.setLeaveTimeMillSecond(DateUtils.parseYYYYMMDDHHMM2Date(this.tfsj).getTimeInMillis()/1000);
+        this.setComeTimeMillSecond(DateUtils.parseYYYYMMDDHHMM2Date(this.rzsj).getTimeInMillis()/1000);
+        this.stayMillSecond=leaveTimeMillSecond-comeTimeMillSecond;
     }
 
-    public HotelRecord(String zjhm, String lgjd, String lgwd, String rzfh, String tfsj, String rzsj, JSONObject diffFieldJsonObject,
-                       JSONObject sameFieldJsonObject, long leaveTimeMillSecond, long comeTimeMillSecond, long stayMillSecond, String lgbm) {
-        this.zjhm = zjhm;
-        this.lgjd = lgjd;
-        this.lgwd = lgwd;
-        this.rzfh = rzfh;
-        this.tfsj = tfsj;
-        this.rzsj = rzsj;
-        this.diffFieldJsonObject = diffFieldJsonObject;
-        this.sameFieldJsonObject = sameFieldJsonObject;
-        this.leaveTimeMillSecond = leaveTimeMillSecond;
-        this.comeTimeMillSecond = comeTimeMillSecond;
-        this.stayMillSecond = stayMillSecond;
-        this.lgbm = lgbm;
-    }
+
 
     public long getStayMillSecond() {
 
@@ -94,6 +81,12 @@ public class HotelRecord implements Serializable {
 
     public void setTfsj(String tfsj) {
         this.tfsj = tfsj;
+        if (tfsj.endsWith("error")||tfsj.isEmpty()){
+//            System.out.println("tfsj检测到error或空字符串:"+tfsj);
+            this.tfsj=DateUtils.plusOneDay(this.rzsj);
+//            System.out.println("重新设定为"+rzsj+"的后一天:"+this.tfsj);
+        }
+
     }
 
     public String getRzsj() {

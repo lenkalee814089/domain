@@ -3,18 +3,22 @@ package com.dataexa.insight.domain.security.spark.dataset;
 import com.alibaba.fastjson.JSONObject;
 import com.dataexa.insight.domain.security.spark.dataset.model.HotelRecord;
 import com.dataexa.insight.domain.security.spark.dataset.model.RailwayRecord;
+import com.dataexa.insight.domain.security.spark.dataset.util.DateUtils;
 import com.dataexa.insight.domain.security.spark.dataset.util.HotelFindUtils;
 import com.dataexa.insight.domain.security.spark.dataset.util.RailwayFindUtils;
 import org.apache.spark.HashPartitioner;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.Row$;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import scala.Tuple2;
 import scala.annotation.meta.param;
+import scala.collection.Seq;
+import scala.collection.mutable.ArrayBuffer;
 
 import java.util.*;
 
@@ -42,10 +46,10 @@ public class ynfkGroupTwoModelJava {
      * @return
      */
     private static JavaRDD<Row> hotelTwoCompute(Dataset<Row> df,
-                                               String zjhm, String tfsj, String rzfh, String rzsj, String lgbm , String hotelDiffColums,String hotelCommonColums) {
+                                               String ZJHM, String TFSJ, String RZFH, String RZSJ, String LGBM , String hotelDiffColums,String hotelCommonColums) {
 
         JavaRDD<Row> rdd = df.javaRDD();
-        JavaRDD<Row> rowJavaRDD = rdd.filter(row -> row.getAs(zjhm) != null && row.getAs(tfsj) != null && row.getAs(rzsj) != null && row.getAs(lgbm) != null)
+        JavaRDD<Row> rowJavaRDD = rdd.filter(row -> row.getAs(ZJHM) != null && row.getAs(RZSJ) != null && row.getAs(LGBM) != null)
                 .map(row -> {
 
                     JSONObject diffJsonObject = new JSONObject();
@@ -61,15 +65,15 @@ public class ynfkGroupTwoModelJava {
                     }
 
                     HotelRecord record = new HotelRecord(
-                            row.getAs(zjhm),
-                            row.getAs(rzfh),
-                            row.getAs(tfsj),
-                            row.getAs(rzsj),
-                            row.getAs(lgbm),
+                            row.getAs(ZJHM),
+                            row.getAs(RZFH),
+                            row.getAs(TFSJ),
+                            row.getAs(RZSJ),
+                            row.getAs(LGBM),
                             diffJsonObject,
                             commonJsonObject
                     );
-                    System.out.println(record.toString());
+                   // System.out.println(record.toString());
                     return record;
 
 
@@ -126,15 +130,25 @@ public class ynfkGroupTwoModelJava {
                     });
 
                     //用","连接
-                    String sameHotelInfo = "";
-                    String sameRoomInfo = "";
+                    String sameHotelInfo = "";int i=0;
+                    String sameRoomInfo = "";int j=0;
                     String sameHotelCommonInfo ="";
                     String sameRoomlCommonInfo ="";
                     for (JSONObject jsonObject : sumArr[0]) {
-                        sameHotelInfo += jsonObject.toJSONString() + ",";
+                        String delimiter1 =",";
+                        if (i%2==1){
+                            delimiter1 ="@";
+                        }
+                        sameHotelInfo += jsonObject.toJSONString() + delimiter1;
+                        i++;
                     }
                     for (JSONObject jsonObject : sumArr[1]) {
-                        sameRoomInfo += jsonObject.toJSONString() + ",";
+                        String delimiter2 =",";
+                        if (j%2==1){
+                            delimiter2 ="@";
+                        }
+                        sameRoomInfo += jsonObject.toJSONString() +delimiter2;
+                        j++;
                     }
                     for (JSONObject jsonObject : sumArr[2]) {
                         sameHotelCommonInfo+=jsonObject.toJSONString()+",";
@@ -157,7 +171,7 @@ public class ynfkGroupTwoModelJava {
                     }
 
 
-                    //人员A,人员B,同行次数,同宿次数,同行信息,同宿信息
+                    //人员A,人员B,同行次数,同宿次数,同行信息,同宿信息,同旅馆Common信息,同房间Common信息
                     return RowFactory.create(personA, personB, sumArr[0].size() / 2 + "", sumArr[1].size() / 2 + "", sameHotelInfo, sameRoomInfo,sameHotelCommonInfo,sameRoomlCommonInfo);
                 });
 
@@ -218,7 +232,7 @@ public class ynfkGroupTwoModelJava {
                             commonJsonObject
                     );
 
-                    System.out.println(record.toString());
+                    //System.out.println(record.toString());
 
                     return record;
 
@@ -272,18 +286,30 @@ public class ynfkGroupTwoModelJava {
                         sumArr[3].addAll(tuple2._2[3]);
                     });
                     //用","连接
-                    String sameRailInfo = "";
-                    String adjacentInfo = "";
+                    String sameRailInfo = ""; int i=0;
+                    String adjacentInfo = ""; int j=0;
                     String sameRailCommonInfo ="";
                     String adjacentCommonInfo ="";
                     for (JSONObject jsonObject : sumArr[0]) {
-                        sameRailInfo += jsonObject.toJSONString()+",";
+                        String delimiter1 =",";
+                        if (i%2==1){
+                            delimiter1 ="@";
+                        }
+                        sameRailInfo += jsonObject.toJSONString()+delimiter1;
+                        i++;
                     }
                     for (JSONObject jsonObject : sumArr[1]) {
-                        adjacentInfo += jsonObject.toJSONString()+",";
+                        String delimiter2 =",";
+                        if (j%2==1){
+                            delimiter2 ="@";
+                        }
+                        adjacentInfo += jsonObject.toJSONString()+delimiter2;
+                        j++;
                     }
                     for (JSONObject jsonObject : sumArr[2]) {
+
                         sameRailCommonInfo+=jsonObject.toJSONString()+",";
+
                     }
                     for (JSONObject jsonObject : sumArr[3]) {
                         adjacentCommonInfo+=jsonObject.toJSONString()+",";
@@ -303,7 +329,7 @@ public class ynfkGroupTwoModelJava {
                     }
 
 
-                    //字段说明: 人员A,人员B,同铁路次数,邻座次数,同铁路信息,邻座的信息
+                    //字段说明: 人员A,人员B,同铁路次数,邻座次数,同铁路信息,邻座的信息,同铁路Common信息,邻座Common信息
                     return RowFactory.create(personA, personB, sumArr[0].size()/2 + "", sumArr[1].size()/2 + "", sameRailInfo, adjacentInfo,sameRailCommonInfo,adjacentCommonInfo);
                 });
 
@@ -312,18 +338,19 @@ public class ynfkGroupTwoModelJava {
 
 
     /**
-     * 旅馆同行
+     * 旅馆同住
      * @param dataset
      * @param sameHotelTimesThreshold 同旅馆次数阈值
-     * @param zjhm
-     * @param rzsj
-     * @param lgbm
-     * @param tfsj
-     * @param rzfh
-     * @param hotelColums
+     * @param ZJHM 证件号码 在表中字段名
+     * @param RZSJ 入住时间 在表中字段名
+     * @param LGBM 旅馆编码 在表中字段名
+     * @param TFSJ 退房时间 在表中字段名
+     * @param RZFH 入住房号 在表中字段名
+     * @param hotelColums 同行人属性值相异的字段
+     * @param commonColums 同行人属性值相同的字段
      * @return
      */
-    public static Dataset<Row> hotelTravelTwoModel (Dataset<Row> dataset,int sameHotelTimesThreshold,String zjhm,String rzsj,String lgbm,String tfsj,String rzfh,String hotelColums,String commonColums){
+    public static Dataset<Row> hotelTravelTwoModel (Dataset<Row> dataset,int sameHotelTimesThreshold,String ZJHM,String RZSJ,String LGBM,String TFSJ,String RZFH,String hotelColums,String commonColums){
 
         //结果转换为df
 
@@ -337,7 +364,7 @@ public class ynfkGroupTwoModelJava {
         }
         StructType schema = DataTypes.createStructType(fields);
 
-        JavaRDD<Row> rowJavaRDD = hotelTwoCompute(dataset, zjhm, tfsj, rzfh, rzsj, lgbm, hotelColums,commonColums);
+        JavaRDD<Row> rowJavaRDD = hotelTwoCompute(dataset, ZJHM, TFSJ, RZFH, RZSJ, LGBM, hotelColums,commonColums);
         JavaRDD<Row> javaRDD = rowJavaRDD.map(row -> RowFactory.create(row.get(0), row.get(1), row.get(2), row.get(4), row.get(6)))
                 .filter(row -> Integer.parseInt(row.getString(2)) >= sameHotelTimesThreshold);
 
@@ -346,19 +373,21 @@ public class ynfkGroupTwoModelJava {
         return resultDataFrame ;
     }
 
+
     /**
      * 旅馆同住
      * @param dataset
-     * @param sameRoomTimesThreshold
-     * @param zjhm
-     * @param rzsj
-     * @param lgbm
-     * @param tfsj
-     * @param rzfh
-     * @param hotelColums
+     * @param sameRoomTimesThreshold 同房间次数阈值
+     * @param ZJHM 证件号码 在表中字段名
+     * @param RZSJ 入住时间 在表中字段名
+     * @param LGBM 旅馆编码 在表中字段名
+     * @param TFSJ 退房时间 在表中字段名
+     * @param RZFH 入住房号 在表中字段名
+     * @param hotelColums 同行人属性值相异的字段
+     * @param commonColums 同行人属性值相同的字段
      * @return
      */
-    public static Dataset<Row> hotelTraveSameRoomModel (Dataset<Row> dataset,int sameRoomTimesThreshold,String zjhm,String rzsj,String lgbm,String tfsj,String rzfh,String hotelColums,String commonColums){
+    public static Dataset<Row> hotelTraveSameRoomModel (Dataset<Row> dataset,int sameRoomTimesThreshold,String ZJHM,String RZSJ,String LGBM,String TFSJ,String RZFH,String hotelColums,String commonColums){
         // String fildNames = "zjhm1,zjhm2,sameHotelTimes,sameRoomTimes,sameHotelInfo,sameRoomInfo,sameHotelCommonInfo,sameRoomlCommonInfo";
         String fildNames = "zjhm1,zjhm2,sameRoomTimes,sameRoomInfo,commonInfo";
 
@@ -369,7 +398,7 @@ public class ynfkGroupTwoModelJava {
         }
         StructType schema = DataTypes.createStructType(fields);
 
-        JavaRDD<Row> rowJavaRDD = hotelTwoCompute(dataset, zjhm, tfsj, rzfh, rzsj, lgbm, hotelColums,commonColums);
+        JavaRDD<Row> rowJavaRDD = hotelTwoCompute(dataset, ZJHM, TFSJ, RZFH, RZSJ, LGBM, hotelColums,commonColums);
         JavaRDD<Row> javaRDD = rowJavaRDD.map(row -> RowFactory.create(row.get(0), row.get(1), row.get(3), row.get(5), row.get(7)))
                 .filter(row -> Integer.parseInt(row.getString(2)) >= sameRoomTimesThreshold);
 
@@ -381,15 +410,16 @@ public class ynfkGroupTwoModelJava {
     /**
      * 铁路同行
      * @param dataset
-     * @param sameRailTimesThreshold
-     * @param GMSFHM
-     * @param SFD
-     * @param MDD
-     * @param CC
-     * @param CXH
-     * @param ZWH
-     * @param FCSJ
-     * @param railColums
+     * @param sameRailTimesThreshold 同行次数阈值
+     * @param GMSFHM 身份证号 在表中字段名
+     * @param SFD 始发地 在表中字段名
+     * @param MDD 目的地 在表中字段名
+     * @param CC 车次 在表中字段名
+     * @param CXH 车厢号 在表中字段名
+     * @param ZWH 座位号 在表中字段名
+     * @param FCSJ 发车时间 在表中字段名
+     * @param railColums 两同行人值不同的属性的列名
+     * @param commonColums 两同行人值相同的属性的列名
      * @return
      */
     public static Dataset<Row> railWayTravelTwoModel (Dataset<Row> dataset,int sameRailTimesThreshold,String GMSFHM,String SFD,String MDD,
@@ -417,15 +447,16 @@ public class ynfkGroupTwoModelJava {
     /**
      * 铁路邻座
      * @param dataset
-     * @param adjacentTimesThreshold
-     * @param GMSFHM
-     * @param SFD
-     * @param MDD
-     * @param CC
-     * @param CXH
-     * @param ZWH
-     * @param FCSJ
-     * @param railColums
+     * @param adjacentTimesThreshold 邻座次数阈值
+     * @param GMSFHM 身份证号 在表中字段名
+     * @param SFD 始发地 在表中字段名
+     * @param MDD 目的地 在表中字段名
+     * @param CC 车次 在表中字段名
+     * @param CXH 车厢号 在表中字段名
+     * @param ZWH 座位号 在表中字段名
+     * @param FCSJ 发车时间 在表中字段名
+     * @param railColums 两邻座人值不同的属性的列名
+     * @param commonColums 两邻座人值相同的属性的列名
      * @return
      */
     public static Dataset<Row> railWayTravelNeighbourModel (Dataset<Row> dataset,int adjacentTimesThreshold,String GMSFHM,String SFD,String MDD,

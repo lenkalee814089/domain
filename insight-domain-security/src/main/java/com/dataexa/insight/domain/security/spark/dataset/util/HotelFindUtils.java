@@ -15,15 +15,12 @@ public class HotelFindUtils {
      * @return
      */
     public static boolean ifSimilarRecord(HotelRecord recordA, HotelRecord recordB){
-        long recordATfsj = recordA.getLeaveTimeMillSecond();
-        long recordAStayLong = recordA.getStayMillSecond();
-
-        long recordBRzsj = recordB.getComeTimeMillSecond();
-        long recordBStayLong = recordB.getStayMillSecond();
+        long laterComeTimeMillSec = Math.max(recordA.getComeTimeMillSecond(), recordB.getComeTimeMillSecond());
+        long earlyLeaveTimeMillSec =Math.min(recordA.getLeaveTimeMillSecond(), recordB.getLeaveTimeMillSecond());
 
 
-        long togetherTime = Math.abs(recordATfsj - recordBRzsj)  ;
-        if ((togetherTime/ ((double) recordAStayLong))>=0.8&&(togetherTime/ ((double) recordBStayLong)>=0.8)){
+        long togetherTime =earlyLeaveTimeMillSec - laterComeTimeMillSec  ;
+        if ((togetherTime/ ((double) recordA.getStayMillSecond()))>=0.8&&(togetherTime/ ((double) recordB.getStayMillSecond()))>=0.8){
             return true;
         }else {
             return false;
